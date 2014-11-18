@@ -1,0 +1,48 @@
+#!/bin/bash
+
+CACHEDIR=".cache"
+SUSIVOLUME="100%"
+SUSIDEVICE="PCM"
+SUSILANG=${SUSILANG=de}
+
+LOCALPATH="`dirname \"$0\"`"
+cd $LOCALPATH
+
+# Create cache directory
+if [ ! -d $CACHEDIR ]; then
+	mkdir $CACHEDIR
+fi
+
+# Prepare input arguments and hash
+INPUT=$(echo $* | sed 's/ /%20/g')
+HASH=($(echo $INPUT | md5sum))
+HASH="$SUSILANG-$HASH"
+
+# Caching
+if [ ! -f "$CACHEDIR/$HASH" ] || [ "$RECACHE" = "1" ]; then
+	printf "Caching new input...\n"
+	curl --header "User-Agent: MPlayer - SUSI" "http://translate.google.com/translate_tts?tl=$SUSILANG&q=$INPUT" -o "$CACHEDIR/$HASH"
+else
+	printf "Using pre-cached file\n"
+fi
+
+# Get MPD playing state in order to restore it
+STAT=$(./mpdstat)
+mpc pause
+
+# Set appropriate volume
+VOL=$(amixer get PCM | egrep -o "[0-9]+%")
+amixer sset "$SUSIDEVICE" "$SUSIVOLUME"
+
+# Play file
+printf "Playing cached file %s\n" "$HASH"
+/usr/bin/mplayer -ao alsa -really-quiet "$CACHEDIR/$HASH"
+
+# Reset volume
+amixer sset "$SUSIDEVICE" "$VOL"
+
+# Reset playing state
+if [ "$STAT" = "1" ] ; then
+	mpc play
+fi
+

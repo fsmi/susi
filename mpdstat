@@ -1,0 +1,5 @@
+#!/bin/bash
+status="`mpc | head -n 2 | tail -n 1`"
+
+[[ ! $status = \[playing\]* ]]
+echo $?
