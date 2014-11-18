@@ -31,7 +31,7 @@ STAT=$(./mpdstat)
 mpc pause
 
 # Set appropriate volume
-VOL=$(amixer get PCM | egrep -o "[0-9]+%")
+VOL=$(amixer get "$SUSIDEVICE" | egrep -o "[0-9]+%")
 amixer sset "$SUSIDEVICE" "$SUSIVOLUME"
 
 # Play file
