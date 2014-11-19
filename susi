@@ -4,10 +4,12 @@ LOCALPATH="`dirname \"$0\"`"
 cd $LOCALPATH
 
 if [ -z "$*" ]; then
-	MOT=$(shuf -n 1 motivationals.txt)
+	LINE=$(shuf -n 1 motivationals.txt)
 else
-	MOT=$(head -$* motivationals.txt | tail -1)
+	LINE=$(head -$* motivationals.txt | tail -1)
 fi
 
-echo "Susi says: $MOT"
-./tts-emit "$MOT"
+IFS=, read SUSILANG SUSITEXT <<< "$LINE"
+
+echo "Susi says ($SUSILANG): $SUSITEXT"
+TTSLANG=$SUSILANG ./tts-emit "$SUSITEXT"

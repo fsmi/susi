@@ -1,9 +1,9 @@
 #!/bin/bash
 
 CACHEDIR=".cache"
-SUSIVOLUME="100%"
-SUSIDEVICE="PCM"
-SUSILANG=${SUSILANG=de}
+TTSVOLUME="100%"
+TTSDEVICE="PCM"
+TTSLANG=${TTSLANG=de}
 
 LOCALPATH="`dirname \"$0\"`"
 cd $LOCALPATH
@@ -16,12 +16,12 @@ fi
 # Prepare input arguments and hash
 INPUT=$(echo $* | sed 's/ /%20/g')
 HASH=($(echo $INPUT | md5sum))
-HASH="$SUSILANG-$HASH"
+HASH="$TTSLANG-$HASH"
 
 # Caching
 if [ ! -f "$CACHEDIR/$HASH" ] || [ "$RECACHE" = "1" ]; then
 	printf "Caching new input...\n"
-	curl --header "User-Agent: MPlayer - SUSI" "http://translate.google.com/translate_tts?tl=$SUSILANG&q=$INPUT" -o "$CACHEDIR/$HASH"
+	curl --header "User-Agent: MPlayer - SUSI" "http://translate.google.com/translate_tts?tl=$TTSLANG&q=$INPUT" -o "$CACHEDIR/$HASH"
 else
 	printf "Using pre-cached file\n"
 fi
@@ -31,15 +31,15 @@ STAT=$(./mpdstat)
 mpc pause
 
 # Set appropriate volume
-VOL=$(amixer get "$SUSIDEVICE" | egrep -o "[0-9]+%")
-amixer sset "$SUSIDEVICE" "$SUSIVOLUME"
+VOL=$(amixer get "$TTSDEVICE" | egrep -o "[0-9]+%")
+amixer sset "$TTSDEVICE" "$TTSVOLUME"
 
 # Play file
 printf "Playing cached file %s\n" "$HASH"
 /usr/bin/mplayer -ao alsa -really-quiet "$CACHEDIR/$HASH"
 
 # Reset volume
-amixer sset "$SUSIDEVICE" "$VOL"
+amixer sset "$TTSDEVICE" "$VOL"
 
 # Reset playing state
 if [ "$STAT" = "1" ] ; then

@@ -1,2 +1,3 @@
-Schlauer Spruch 1
-Schlauer Spruch 2
+de,Schlauer Spruch 1
+de,Schlauer Spruch 2
+en,Clever line 1
